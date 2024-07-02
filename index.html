@@ -64,14 +64,40 @@
     <script>
       const notepad = document.getElementById("notepad");
       const deleteButton = document.getElementById("deleteButton");
+
+      // Carrega texto do localStorage ao carregar a página
       notepad.value = localStorage.getItem("notepad") || "";
+
+      // Salva texto no localStorage e atualiza a URL ao digitar no campo de texto
       notepad.addEventListener("input", () => {
         localStorage.setItem("notepad", notepad.value);
+        updateURL();
       });
+
+      // Limpa o localStorage e o campo de texto ao clicar no botão "Deletar Texto"
       deleteButton.addEventListener("click", () => {
         if (confirm("Tem certeza que deseja deletar o texto salvo?")) {
           localStorage.removeItem("notepad");
           notepad.value = "";
+          updateURL();
+        }
+      });
+
+      // Atualiza a URL com o texto atual codificado
+      function updateURL() {
+        const encodedText = encodeURIComponent(notepad.value);
+        const url = `${window.location.origin}${window.location.pathname}?text=${encodedText}`;
+        window.history.replaceState({}, document.title, url);
+      }
+
+      // Verifica se há texto na URL e carrega no localStorage e no campo de texto
+      window.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const textFromURL = urlParams.get("text");
+
+        if (textFromURL) {
+          notepad.value = decodeURIComponent(textFromURL);
+          localStorage.setItem("notepad", notepad.value);
         }
       });
     </script>
